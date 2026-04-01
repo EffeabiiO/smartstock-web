@@ -1,11 +1,21 @@
 'use client'
 
-import type { Order as AppOrder, Product as AppProduct } from '@/types'
+import type {
+  Order as AppOrder,
+  Product as AppProduct,
+  ProductionTask as AppProductionTask,
+} from '@/types'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useCompany } from '@/hooks/useCompany'
-import { formatCurrency, formatDate, getOrderStatusColor, getOrderStatusLabel, getProductionStatusColor, getProductionStatusLabel } from '@/lib/utils'
-import { Order, ProductionTask, Product } from '@/types'
+import {
+  formatCurrency,
+  formatDate,
+  getOrderStatusColor,
+  getOrderStatusLabel,
+  getProductionStatusColor,
+  getProductionStatusLabel,
+} from '@/lib/utils'
 import { ShoppingCart, Factory, TrendingUp, AlertTriangle, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
@@ -21,9 +31,9 @@ export default function DashboardPage() {
   const { activeCompany } = useCompany()
   const supabase = createClient()
   const [stats, setStats] = useState<Stats>({ active_orders: 0, active_production: 0, low_stock: 0, revenue_month: 0 })
-  const [recentOrders, setRecentOrders] = useState<Order[]>([])
-  const [activeTasks, setActiveTasks] = useState<(ProductionTask & { product: Product })[]>([])
-  const [lowStockProducts, setLowStockProducts] = useState<Product[]>([])
+  const [recentOrders, setRecentOrders] = useState<AppOrder[]>([])
+const [activeTasks, setActiveTasks] = useState<(AppProductionTask & { product: AppProduct })[]>([])
+const [lowStockProducts, setLowStockProducts] = useState<AppProduct[]>([])
   const [chartData, setChartData] = useState<{ month: string; fatturato: number }[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -41,7 +51,8 @@ export default function DashboardPage() {
 
       const orders: AppOrder[] = (ordersRes.data ?? []) as AppOrder[]
       const products: AppProduct[] = (productsRes.data ?? []) as AppProduct[]
-      const tasks = tasksRes.data ?? []
+      const tasks: (AppProductionTask & { product: AppProduct })[] =
+  (tasksRes.data ?? []) as (AppProductionTask & { product: AppProduct })[]
       
 
       const activeOrders = orders.filter(o => !['completato', 'annullato'].includes(o.status))
@@ -51,13 +62,14 @@ export default function DashboardPage() {
       const now = new Date()
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
       const { data: monthOrders } = await supabase
-        .from('orders')
-        .select('total_revenue')
-        .eq('company_id', cid)
-        .eq('status', 'completato')
-        .gte('created_at', startOfMonth)
+  .from('orders')
+  .select('total_revenue')
+  .eq('company_id', cid)
+  .eq('status', 'completato')
+  .gte('created_at', startOfMonth)
 
-      const revenue = (monthOrders ?? []).reduce((s, o) => s + (o.total_revenue ?? 0), 0)
+const typedMonthOrders = (monthOrders ?? []) as Pick<AppOrder, 'total_revenue'>[]
+const revenue = typedMonthOrders.reduce((s, o) => s + (o.total_revenue ?? 0), 0)
 
       // Chart: last 6 months
       const months: { month: string; fatturato: number }[] = []
@@ -72,13 +84,14 @@ export default function DashboardPage() {
           .eq('status', 'completato')
           .gte('created_at', start)
           .lt('created_at', end)
-        const total = (mo ?? []).reduce((s, o) => s + (o.total_revenue ?? 0), 0)
+        const typedMo = (mo ?? []) as Pick<AppOrder, 'total_revenue'>[]
+const total = typedMo.reduce((s, o) => s + (o.total_revenue ?? 0), 0) => s + (o.total_revenue ?? 0), 0)
         months.push({ month: d.toLocaleDateString('it-IT', { month: 'short' }), fatturato: total })
       }
 
       setStats({ active_orders: activeOrders.length, active_production: tasks.length, low_stock: lowStock.length, revenue_month: revenue })
       setRecentOrders(orders.slice(0, 5))
-      setActiveTasks(tasks as (ProductionTask & { product: Product })[])
+      setActiveTasks(tasks)
       setLowStockProducts(lowStock.slice(0, 4))
       setChartData(months)
       setLoading(false)
