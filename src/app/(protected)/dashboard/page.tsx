@@ -1,5 +1,6 @@
 'use client'
 
+import type { Order, Product } from '@/types'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useCompany } from '@/hooks/useCompany'
@@ -38,9 +39,10 @@ export default function DashboardPage() {
         supabase.from('products').select('*').eq('company_id', cid),
       ])
 
-      const orders = ordersRes.data ?? []
+      const orders: Order[] = (ordersRes.data ?? []) as Order[]
+const products: Product[] = (productsRes.data ?? []) as Product[]
       const tasks = tasksRes.data ?? []
-      const products = productsRes.data ?? []
+      
 
       const activeOrders = orders.filter(o => !['completato', 'annullato'].includes(o.status))
       const lowStock = products.filter(p => p.available_quantity <= p.minimum_stock && p.minimum_stock > 0)
