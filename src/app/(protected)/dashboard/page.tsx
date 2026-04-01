@@ -1,5 +1,6 @@
 'use client'
 
+import type { Database } from '@/types'
 import type {
   Order as AppOrder,
   Product as AppProduct,
@@ -73,7 +74,15 @@ export default function DashboardPage() {
           .select('*')
           .eq('company_id', cid),
       ])
+const companyUpdate: Database['public']['Tables']['companies']['Update'] = {
+  name: name.trim(),
+  logo_url: logoUrl,
+}
 
+const { error } = await supabase
+  .from('companies')
+  .update(companyUpdate)
+  .eq('id', activeCompany.id)
       const orders: AppOrder[] = (ordersRes.data ?? []) as AppOrder[]
       const products: AppProduct[] = (productsRes.data ?? []) as AppProduct[]
       const tasks: ActiveTask[] = (tasksRes.data ?? []) as ActiveTask[]
