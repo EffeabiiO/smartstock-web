@@ -1,6 +1,6 @@
 'use client'
 
-import type { Order, Product } from '@/types'
+import type { Order as AppOrder, Product } from '@/types'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useCompany } from '@/hooks/useCompany'
@@ -39,7 +39,7 @@ export default function DashboardPage() {
         supabase.from('products').select('*').eq('company_id', cid),
       ])
 
-      const orders: Order[] = (ordersRes.data ?? []) as Order[]
+      const orders: AppOrder[] = (ordersRes.data ?? []) as AppOrder[]
 const products: Product[] = (productsRes.data ?? []) as Product[]
       const tasks = tasksRes.data ?? []
       
