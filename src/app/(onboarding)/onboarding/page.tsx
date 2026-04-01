@@ -42,13 +42,15 @@ export default function OnboardingPage() {
         }
       }
 
-      const { data, error } = await supabase.rpc(
-  'create_company_with_membership' as 'create_company_with_membership',
-  {
-    company_name: name.trim(),
-    company_logo_url: logoUrl,
-  } as Database['public']['Functions']['create_company_with_membership']['Args']
-)
+      const rpc = supabase.rpc as unknown as (
+  fn: string,
+  args?: Record<string, unknown>
+) => Promise<{ data: string | null; error: { message: string } | null }>
+
+const { data, error } = await rpc('create_company_with_membership', {
+  company_name: name.trim(),
+  company_logo_url: logoUrl,
+})
 
       if (error) throw error
       localStorage.setItem('activeCompanyId', data as string)
