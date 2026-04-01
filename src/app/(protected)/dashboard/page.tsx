@@ -84,10 +84,9 @@ const revenue = typedMonthOrders.reduce((s, o) => s + (o.total_revenue ?? 0), 0)
           .eq('status', 'completato')
           .gte('created_at', start)
           .lt('created_at', end)
-        const typedMo = (mo ?? []) as Pick<AppOrder, 'total_revenue'>[]
-const total = typedMo.reduce((s, o) => s + (o.total_revenue ?? 0), 0) => s + (o.total_revenue ?? 0), 0)
-        months.push({ month: d.toLocaleDateString('it-IT', { month: 'short' }), fatturato: total })
-      }
+       const typedMo = (mo ?? []) as Pick<AppOrder, 'total_revenue'>[]
+const total = typedMo.reduce((s, o) => s + (o.total_revenue ?? 0), 0)
+
 
       setStats({ active_orders: activeOrders.length, active_production: tasks.length, low_stock: lowStock.length, revenue_month: revenue })
       setRecentOrders(orders.slice(0, 5))
